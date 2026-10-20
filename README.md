@@ -35,7 +35,7 @@ Run these once after cloning:
 git clone <repo-url>
 cd london-house-prices
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate #skip if got error for now
 pip install -r requirements.txt
 nbstripout --install             # strips notebook outputs before each commit
 ```

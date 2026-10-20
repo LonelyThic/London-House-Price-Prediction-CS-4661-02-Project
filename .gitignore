@@ -459,3 +459,5 @@ Thumbs.db
 # --- Secrets ---
 kaggle.json
 .env
+
+git check-ignore -v data/train.csv

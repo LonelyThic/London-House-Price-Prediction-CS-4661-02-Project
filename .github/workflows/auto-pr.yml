@@ -5,7 +5,7 @@ on:
     branches-ignore: [main]
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Open a draft PR if this branch doesn't have one
+      - name: Open a PR if this branch doesn't have one
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ github.ref_name }}
@@ -47,5 +47,3 @@ jobs:
             --title "$(git log -1 --pretty=%s)" \
             --body-file "$body_file" \
             --assignee "$AUTHOR"
-            
-          gh pr merge "$BRANCH" --auto --squash

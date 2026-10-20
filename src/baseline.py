@@ -5,27 +5,31 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error
 
 from src.data import load_train, time_split
+from src.features import add_previous_sale
 
 CAT_COLS = ["outcode", "tenure", "propertyType", "currentEnergyRating"]
 NUM_COLS = ["latitude", "longitude", "bathrooms", "bedrooms",
             "floorAreaSqM", "livingRooms", "sale_month", "sale_year"]
+PREV_SALE_COLS = ["prev_price", "prev_price_adjusted",
+                  "months_since_prev_sale"]
 
 
-def encode(train, other):
-    """Convert text categories to integer codes, using only categories seen in training."""
-    X_train = train[CAT_COLS + NUM_COLS].copy()
-    X_other = other[CAT_COLS + NUM_COLS].copy()
+def encode(train, other, num_cols):
+    """Convert text categories to integer codes (training categories only)."""
+    X_train = train[CAT_COLS + num_cols].copy()
+    X_other = other[CAT_COLS + num_cols].copy()
     for col in CAT_COLS:
         cats = pd.Categorical(train[col]).categories
         for X, src in ((X_train, train), (X_other, other)):
-            codes = pd.Categorical(src[col], categories=cats).codes.astype(float)
+            codes = pd.Categorical(src[col], categories=cats).codes
+            codes = codes.astype(float)
             codes[codes < 0] = np.nan          # missing / unseen -> NaN
             X[col] = codes
     return X_train, X_other
 
 
 def median_baseline(train, valid):
-    """Predict the recent median price for the same outcode and property type."""
+    """Predict the recent median price for the same outcode and type."""
     recent = train[train["sale_year"] >= train["sale_year"].max() - 2]
     medians = recent.groupby(["outcode", "propertyType"])["price"].median()
     keys = pd.MultiIndex.from_frame(valid[["outcode", "propertyType"]])
@@ -33,9 +37,9 @@ def median_baseline(train, valid):
     return preds.fillna(recent["price"].median())
 
 
-def gradient_boosting(train, valid):
+def gradient_boosting(train, valid, num_cols=NUM_COLS):
     """Gradient boosting trained on log(price), converted back to pounds."""
-    X_train, X_valid = encode(train, valid)
+    X_train, X_valid = encode(train, valid, num_cols)
     model = HistGradientBoostingRegressor(
         max_iter=800, learning_rate=0.08, max_leaf_nodes=127,
         categorical_features=list(range(len(CAT_COLS))), random_state=42,
@@ -44,11 +48,19 @@ def gradient_boosting(train, valid):
     return np.exp(model.predict(X_valid))
 
 
+def gradient_boosting_prev_sale(train, valid):
+    """Same model, plus each property's previous sale price (leak-free)."""
+    train_f, valid_f = add_previous_sale(train, valid)
+    return gradient_boosting(train_f, valid_f, NUM_COLS + PREV_SALE_COLS)
+
+
 if __name__ == "__main__":
     train, valid = time_split(load_train(), valid_from_year=2023)
-    print(f"Train: {len(train):,} rows (before 2023) | Valid: {len(valid):,} rows (2023)")
+    print(f"Train: {len(train):,} rows (before 2023) | "
+          f"Valid: {len(valid):,} rows (2023)")
 
     for name, fn in [("Median by outcode + type", median_baseline),
-                     ("Gradient boosting", gradient_boosting)]:
+                     ("Gradient boosting", gradient_boosting),
+                     ("GB + previous sale", gradient_boosting_prev_sale)]:
         mae = mean_absolute_error(valid["price"], fn(train, valid))
         print(f"{name:<28} MAE: £{mae:,.0f}")

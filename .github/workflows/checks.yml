@@ -19,13 +19,13 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Block data files, secrets, and large files
+      - name: Block data files, secrets, venvs, and large files
         run: |
-          bad=$(git ls-files | grep -E '^data/|(^|/)(train|test|sample_submission)\.csv$|\.zip$|(^|/)kaggle\.json$|(^|/)\.env$' || true)
+          bad=$(git ls-files | grep -E '^data/|^Data/|^\.?venv[^/]*/|(^|/)(train|test|sample_submission)\.csv$|\.zip$|(^|/)kaggle\.json$|(^|/)\.env$' || true)
           if [ -n "$bad" ]; then
             echo "::error::These files must not be committed:"
             echo "$bad"
-            echo "Remove them with: git rm --cached <file>"
+            echo "Remove them with: git rm -r --cached <file>"
             exit 1
           fi
 
@@ -64,5 +64,43 @@ jobs:
         run: |
           if [ -d src ]; then
             python -m compileall -q src
-            python -c "import src.data"
+            for f in src/*.py; do
+              mod=$(basename "$f" .py)
+              if [ "$mod" != "__init__" ]; then
+                python -c "import src.$mod"
+              fi
+            done
           fi
+
+  merge:
+    needs: checks
+    if: github.event.deleted == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Merge this branch's PR now that checks passed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          # The auto-PR workflow runs at the same time, so give it a moment.
+          pr=""
+          for i in 1 2 3 4 5 6; do
+            pr=$(gh pr list --repo "$REPO" --head "$BRANCH" --base main \
+                   --state open --json number --jq '.[0].number // empty')
+            if [ -n "$pr" ]; then break; fi
+            echo "No PR yet, waiting..."
+            sleep 10
+          done
+
+          if [ -z "$pr" ]; then
+            echo "No open PR for $BRANCH; nothing to merge."
+            exit 0
+          fi
+
+          gh pr ready "$pr" --repo "$REPO" || true
+          gh pr merge "$pr" --repo "$REPO" --squash --match-head-commit "$SHA"

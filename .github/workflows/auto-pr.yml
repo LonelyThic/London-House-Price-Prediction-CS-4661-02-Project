@@ -46,5 +46,6 @@ jobs:
             --head "$BRANCH" \
             --title "$(git log -1 --pretty=%s)" \
             --body-file "$body_file" \
-            --assignee "$AUTHOR" \
-            --draft
+            --assignee "$AUTHOR"
+            
+          gh pr merge "$BRANCH" --auto --squash

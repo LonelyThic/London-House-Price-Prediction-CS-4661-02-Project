@@ -1,0 +1,70 @@
+name: PR checks
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    if: github.event_name == 'pull_request' || github.event.deleted == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Block data files, secrets, and large files
+        run: |
+          bad=$(git ls-files | grep -E '^data/|(^|/)(train|test|sample_submission)\.csv$|\.zip$|(^|/)kaggle\.json$|(^|/)\.env$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::These files must not be committed:"
+            echo "$bad"
+            echo "Remove them with: git rm --cached <file>"
+            exit 1
+          fi
+
+          big=$(git ls-files -z | xargs -0 -I{} find {} -maxdepth 0 -type f -size +10M)
+          if [ -n "$big" ]; then
+            echo "::error::Files over 10 MB are not allowed:"
+            echo "$big"
+            exit 1
+          fi
+
+      - name: Check notebooks have no outputs
+        run: |
+          python - <<'EOF'
+          import json, pathlib, sys
+          bad = []
+          for nb in pathlib.Path(".").rglob("*.ipynb"):
+              if ".ipynb_checkpoints" in nb.parts:
+                  continue
+              cells = json.loads(nb.read_text(encoding="utf-8")).get("cells", [])
+              if any(c.get("outputs") or c.get("execution_count")
+                     for c in cells if c.get("cell_type") == "code"):
+                  bad.append(str(nb))
+          if bad:
+              print("::error::These notebooks still have outputs:")
+              print("\n".join(bad))
+              print("Fix: run `nbstripout --install` once, then `nbstripout <notebook>` and commit.")
+              sys.exit(1)
+          print("All notebooks are clean.")
+          EOF
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Check shared code compiles and imports
+        run: |
+          if [ -d src ]; then
+            python -m compileall -q src
+            python -c "import src.data"
+          fi

@@ -1,0 +1,50 @@
+name: Auto-open pull request
+
+on:
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open-pr:
+    if: github.event.deleted == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open a draft PR if this branch doesn't have one
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+          AUTHOR: ${{ github.actor }}
+        run: |
+          open_prs=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq 'length')
+          if [ "$open_prs" != "0" ]; then
+            echo "A PR is already open for $BRANCH."
+            exit 0
+          fi
+
+          if [ "$(git rev-list --count origin/main..HEAD)" = "0" ]; then
+            echo "No new commits compared to main yet; skipping."
+            exit 0
+          fi
+
+          if [ -f .github/pull_request_template.md ]; then
+            body_file=.github/pull_request_template.md
+          else
+            echo "Auto-opened from branch \`$BRANCH\`." > /tmp/pr_body.md
+            body_file=/tmp/pr_body.md
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "$(git log -1 --pretty=%s)" \
+            --body-file "$body_file" \
+            --assignee "$AUTHOR" \
+            --draft

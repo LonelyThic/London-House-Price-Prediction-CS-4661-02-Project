@@ -3,15 +3,13 @@ name: PR checks
 on:
   push:
     branches-ignore: [main]
-  pull_request:
-    branches: [main]
 
 permissions:
   contents: read
 
 jobs:
   checks:
-    if: github.event_name == 'pull_request' || github.event.deleted == false
+    if: github.event.deleted == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

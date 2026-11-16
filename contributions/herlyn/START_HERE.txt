@@ -1,27 +1,36 @@
-HERLYN: ISOLATED DATA CLEANING
+DATA CLEANING — HERLYN DSOUZA
 
-All files in this package belong under contributions/herlyn/ in the team repo.
-Do not replace the root README, requirements, src or other teammates' files.
-This contribution reads the existing src.data and src.baseline modules.
-Kaggle datasets remain in the existing root data/ folder and are not committed.
+This directory contains the data-cleaning implementation, analysis,
+validation results, figures and tests.
 
-From the repository root, with its dependencies installed:
+FILES
+cleaning.py: train-fitted cleaning transformations.
+cleaning_review.py: cleaning experiments and MAE evaluation.
+notebooks/02_cleaning_herlyn.ipynb: analysis notebook.
+reports/: result tables, figures, environment versions and notes.
+tests/test_cleaning.py: automated cleaning tests.
+
+METHOD
+Training used sales before 2023. Validation used all 2023 sales.
+The selected configuration was:
+PropertyCleaner(group_rare=False, impute=False)
+
+DEPENDENCIES
+The analysis uses the existing src.data and src.baseline modules.
+Dependencies are listed in the repository's requirements.txt.
+The three Kaggle CSV files are loaded from the root data/ directory.
+Raw datasets are excluded from version control.
+
+REPRODUCIBILITY
+Commands run from the repository root:
+
 python -m unittest discover -s contributions/herlyn/tests -v
 python -m contributions.herlyn.cleaning_review
 
-Notebook: contributions/herlyn/notebooks/02_cleaning_herlyn.ipynb
-Results and notes: contributions/herlyn/reports/
-Regenerating results writes only inside contributions/herlyn/reports/.
-Install the team's nbstripout hook before committing notebook changes.
+Generated results are saved under contributions/herlyn/reports/.
+environment.json records the package versions used for the Mac run.
+The notebook follows the team's nbstripout convention.
 
-Selected cleaner: PropertyCleaner(group_rare=False, impute=False).
-Import from contributions.herlyn.cleaning, not src.cleaning.
-The comparison runner is contributions.herlyn.cleaning_review.
-The saved results were produced using the uploaded original team baseline.
-If teammates update the baseline, rerun and review the comparison.
-Do not treat environment.json as your Mac environment; it records the original
-execution environment for the bundled results.
-
-Git handoff: stage only contributions/herlyn/, commit on your task branch,
-push that branch and open a pull request for review. Never stage Kaggle data.
-No remote changes have been made. Do not overwrite existing contribution files.
+STATUS
+The contribution is available in PR #17 for teammate review.
+Existing team source files were preserved.

@@ -1,0 +1,11 @@
+{
+  "training_rows": 232916,
+  "validation_rows": 33409,
+  "price_min": 10000.0,
+  "price_max": 100000000.0,
+  "trim_lower": 32500.0,
+  "trim_upper": 6175000.0,
+  "trimmed_training_rows": 230595,
+  "validation_policy": "Every experiment scores all 2023 rows; no validation trimming.",
+  "scope": "Cleaning ablations use no previous-sale features. Validation is development evidence, not an untouched final test."
+}

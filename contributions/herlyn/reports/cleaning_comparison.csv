@@ -1,0 +1,7 @@
+experiment,mae_gbp,training_rows,validation_rows
+Median baseline,342975.185997785,232916,33409
+Original gradient boosting,211173.50620153465,232916,33409
+Labels + missing flags,209569.34866299067,232916,33409
+Labels + flags + rare tenure,209601.38036406605,232916,33409
+Labels + flags + rare tenure + medians,209608.59325122365,232916,33409
+Labels + flags + rare tenure + price trim,222932.29149533456,230595,33409

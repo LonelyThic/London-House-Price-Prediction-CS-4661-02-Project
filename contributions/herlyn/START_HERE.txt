@@ -1,0 +1,27 @@
+HERLYN: ISOLATED DATA CLEANING
+
+All files in this package belong under contributions/herlyn/ in the team repo.
+Do not replace the root README, requirements, src or other teammates' files.
+This contribution reads the existing src.data and src.baseline modules.
+Kaggle datasets remain in the existing root data/ folder and are not committed.
+
+From the repository root, with its dependencies installed:
+python -m unittest discover -s contributions/herlyn/tests -v
+python -m contributions.herlyn.cleaning_review
+
+Notebook: contributions/herlyn/notebooks/02_cleaning_herlyn.ipynb
+Results and notes: contributions/herlyn/reports/
+Regenerating results writes only inside contributions/herlyn/reports/.
+Install the team's nbstripout hook before committing notebook changes.
+
+Selected cleaner: PropertyCleaner(group_rare=False, impute=False).
+Import from contributions.herlyn.cleaning, not src.cleaning.
+The comparison runner is contributions.herlyn.cleaning_review.
+The saved results were produced using the uploaded original team baseline.
+If teammates update the baseline, rerun and review the comparison.
+Do not treat environment.json as your Mac environment; it records the original
+execution environment for the bundled results.
+
+Git handoff: stage only contributions/herlyn/, commit on your task branch,
+push that branch and open a pull request for review. Never stage Kaggle data.
+No remote changes have been made. Do not overwrite existing contribution files.

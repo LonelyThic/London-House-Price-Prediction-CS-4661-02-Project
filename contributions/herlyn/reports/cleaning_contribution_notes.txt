@@ -1,9 +1,8 @@
 HERLYN DSOUZA — DATA CLEANING CONTRIBUTION
 
 METHOD
-Train on 232,916 sales before 2023; validate on all 33,409 sales in 2023.
-Use Steven's original histogram gradient boosting hyperparameters and log-price
-training. All fitted rules use training rows only. Raw columns remain intact.
+Training used 232,916 sales before 2023; validation used all 33,409 sales in 2023.
+The experiments used Steven's original histogram gradient boosting hyperparameters and log-price training. All fitted rules use training rows only. Raw columns remain intact.
 All six experiments score the same validation rows. No price clipping or row
 filtering is applied to validation. Previous-sale features are excluded.
 
@@ -16,22 +15,22 @@ Labels + flags + rare tenure + medians: 209,608.59
 Labels + flags + rare tenure + training price trim: 222,932.29
 
 DECISIONS
-Use PropertyCleaner(group_rare=False, impute=False). To reproduce the selected
+The selected configuration was PropertyCleaner(group_rare=False, impute=False). To reproduce the selected
 model integration, call contributions.herlyn.cleaning_review.predict_clean(train, valid).
-1. Standardize equivalent wording in property labels. Preserve flat subtypes,
+1. Standardized equivalent wording in property labels. Preserve flat subtypes,
    bungalow types and unspecified terrace labels as distinct categories.
-2. Represent missing categories explicitly and add numeric/energy missing flags.
+2. Represented missing categories explicitly and add numeric/energy missing flags.
    Preserve numeric NaN values supported by this tree model.
-3. Retain rare tenure labels. Grouping training tenure labels with frequency
+3. Rare tenure labels were retained. Grouping training tenure labels with frequency
    below 1% of nonmissing values into Other worsened MAE by GBP 32.03 versus
    labels plus flags. Missing tenure remains a separate category.
 4. Median imputation worsened the rare-tenure candidate by GBP 7.21. It was
    not evaluated in every possible combination. Other models may need imputation.
-5. Retain extreme prices. Their rarity alone does not prove an error. A training
+5. Extreme prices were retained. Their rarity alone does not prove an error. A training
    sensitivity experiment retained prices between the 0.5th and 99.5th training
    percentiles (GBP 32,500 to GBP 6,175,000), removing 2,321 rows. Compared with
    the same rare-tenure candidate, MAE worsened by GBP 13,330.91.
-6. Retain correlated features. Bedrooms and floor area have training Pearson
+6. Correlated features were retained. Bedrooms and floor area have training Pearson
    correlation about 0.795, but measure different aspects of a property.
 
 LIMITS
@@ -45,7 +44,7 @@ The separate previous-sale model's GBP 199,449 result is not a cleaning result.
 Its causal price-index and same-month fallback issues remain for the team to fix
 in a separate contribution. Original source files are unchanged.
 
-REPORT PARAGRAPH (adapt after reviewing and running the work)
+REPORT SUMMARY
 I evaluated a train-fitted cleaning pipeline using sales before 2023 for training
 and all 2023 sales for validation. I standardized equivalent property labels,
 represented missing categories explicitly and added missing-value indicators.
@@ -64,7 +63,6 @@ Evaluation: same 2023 validation rows and model hyperparameters; MAE changed
 from GBP 211,174 to GBP 209,569. No guarantee of improvement on unseen years.
 Decision: retain rare tenure, extreme prices and correlated tree inputs.
 
-HANDOFF
-Read contributions/herlyn/START_HERE.txt. Use a task branch and request teammate review. The contribution is uploaded in GitHub PR #17 for review. No Kaggle submission was made. This is your cleaning contribution,
-not the final group report or PowerPoint. Review and understand the implementation
-and follow course policy for assistance before claiming or submitting the work.
+PROJECT STATUS
+The data-cleaning contribution was uploaded in PR #17 and submitted for teammate review.
+Results, figures and analysis are included under contributions/herlyn/.

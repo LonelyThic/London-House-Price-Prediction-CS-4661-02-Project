@@ -61,11 +61,10 @@ SLIDE POINTS
 Data quality: standardized labels; explicit missing categories and indicators;
 examined rare tenure, extreme prices and correlations.
 Evaluation: same 2023 validation rows and model hyperparameters; MAE changed
-from GBP 209,474 to GBP 208,938. No guarantee of improvement on unseen years.
+from GBP 211,174 to GBP 209,569. No guarantee of improvement on unseen years.
 Decision: retain rare tenure, extreme prices and correlated tree inputs.
 
 HANDOFF
-Read CLEANING_README.txt. Use a task branch and request teammate review. No remote
-GitHub changes or Kaggle submission were made. This is your cleaning contribution,
+Read contributions/herlyn/START_HERE.txt. Use a task branch and request teammate review. The contribution is uploaded in GitHub PR #17 for review. No Kaggle submission was made. This is your cleaning contribution,
 not the final group report or PowerPoint. Review and understand the implementation
 and follow course policy for assistance before claiming or submitting the work.

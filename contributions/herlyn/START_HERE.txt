@@ -18,7 +18,7 @@ PropertyCleaner(group_rare=False, impute=False)
 DEPENDENCIES
 The analysis uses the existing src.data and src.baseline modules.
 Dependencies are listed in the repository's requirements.txt.
-The three Kaggle CSV files are loaded from the root data/ directory.
+The cleaning analysis loads train.csv from the repository's root data/ directory.
 Raw datasets are excluded from version control.
 
 REPRODUCIBILITY

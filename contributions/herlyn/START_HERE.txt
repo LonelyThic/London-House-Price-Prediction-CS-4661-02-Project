@@ -1,0 +1,36 @@
+DATA CLEANING — HERLYN DSOUZA
+
+This directory contains the data-cleaning implementation, analysis,
+validation results, figures and tests.
+
+FILES
+cleaning.py: train-fitted cleaning transformations.
+cleaning_review.py: cleaning experiments and MAE evaluation.
+notebooks/02_cleaning_herlyn.ipynb: analysis notebook.
+reports/: result tables, figures, environment versions and notes.
+tests/test_cleaning.py: automated cleaning tests.
+
+METHOD
+Training used sales before 2023. Validation used all 2023 sales.
+The selected configuration was:
+PropertyCleaner(group_rare=False, impute=False)
+
+DEPENDENCIES
+The analysis uses the existing src.data and src.baseline modules.
+Dependencies are listed in the repository's requirements.txt.
+The cleaning analysis loads train.csv from the repository's root data/ directory.
+Raw datasets are excluded from version control.
+
+REPRODUCIBILITY
+Commands run from the repository root:
+
+python -m unittest discover -s contributions/herlyn/tests -v
+python -m contributions.herlyn.cleaning_review
+
+Generated results are saved under contributions/herlyn/reports/.
+environment.json records the package versions used for the Mac run.
+The notebook follows the team's nbstripout convention.
+
+STATUS
+The contribution is available in PR #17 for teammate review.
+Existing team source files were preserved.

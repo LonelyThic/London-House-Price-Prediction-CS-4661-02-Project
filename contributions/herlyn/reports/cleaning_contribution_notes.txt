@@ -1,0 +1,68 @@
+HERLYN DSOUZA — DATA CLEANING CONTRIBUTION
+
+METHOD
+Training used 232,916 sales before 2023; validation used all 33,409 sales in 2023.
+The experiments used Steven's original histogram gradient boosting hyperparameters and log-price training. All fitted rules use training rows only. Raw columns remain intact.
+All six experiments score the same validation rows. No price clipping or row
+filtering is applied to validation. Previous-sale features are excluded.
+
+RESULTS (MAE in GBP; lower is better)
+Median baseline: 342,975.19
+Original gradient boosting: 211,173.51
+Labels + missing flags: 209,569.35
+Labels + flags + rare tenure: 209,601.38
+Labels + flags + rare tenure + medians: 209,608.59
+Labels + flags + rare tenure + training price trim: 222,932.29
+
+DECISIONS
+The selected configuration was PropertyCleaner(group_rare=False, impute=False). To reproduce the selected
+model integration, call contributions.herlyn.cleaning_review.predict_clean(train, valid).
+1. Standardized equivalent wording in property labels. Preserve flat subtypes,
+   bungalow types and unspecified terrace labels as distinct categories.
+2. Represented missing categories explicitly and add numeric/energy missing flags.
+   Preserve numeric NaN values supported by this tree model.
+3. Rare tenure labels were retained. Grouping training tenure labels with frequency
+   below 1% of nonmissing values into Other worsened MAE by GBP 32.03 versus
+   labels plus flags. Missing tenure remains a separate category.
+4. Median imputation worsened the rare-tenure candidate by GBP 7.21. It was
+   not evaluated in every possible combination. Other models may need imputation.
+5. Extreme prices were retained. Their rarity alone does not prove an error. A training
+   sensitivity experiment retained prices between the 0.5th and 99.5th training
+   percentiles (GBP 32,500 to GBP 6,175,000), removing 2,321 rows. Compared with
+   the same rare-tenure candidate, MAE worsened by GBP 13,330.91.
+6. Correlated features were retained. Bedrooms and floor area have training Pearson
+   correlation about 0.795, but measure different aspects of a property.
+
+LIMITS
+This is a sequential ablation, not an exhaustive factorial experiment. The best
+observed candidate improves MAE by GBP 1,604.16, approximately 0.76%, on one
+validation year. It does not establish a reliable gain on unseen future sales.
+Further chronological evaluation is needed. 2023 is a development validation
+set after settings are selected on it. No 2024 target prices are available.
+The original model fits log(price), not MAE directly in pounds.
+The separate previous-sale model's GBP 199,449 result is not a cleaning result.
+Its causal price-index and same-month fallback issues remain for the team to fix
+in a separate contribution. Original source files are unchanged.
+
+REPORT SUMMARY
+I evaluated a train-fitted cleaning pipeline using sales before 2023 for training
+and all 2023 sales for validation. I standardized equivalent property labels,
+represented missing categories explicitly and added missing-value indicators.
+I investigated rare tenure grouping, numeric median imputation, extreme-price
+filtering and correlations. Labels and missing indicators produced the best MAE
+among six configurations: GBP 209,569.35 versus GBP 211,173.51 for the original
+gradient boosting baseline. The tested grouping, imputation and trimming variants
+did not improve their comparison models. I therefore retained rare tenure
+categories, numeric missing values supported by the model, extreme prices and
+correlated predictors. This small improvement needs additional time validation.
+
+SLIDE POINTS
+Data quality: standardized labels; explicit missing categories and indicators;
+examined rare tenure, extreme prices and correlations.
+Evaluation: same 2023 validation rows and model hyperparameters; MAE changed
+from GBP 211,174 to GBP 209,569. No guarantee of improvement on unseen years.
+Decision: retain rare tenure, extreme prices and correlated tree inputs.
+
+PROJECT STATUS
+The data-cleaning contribution was uploaded in PR #17 and submitted for teammate review.
+Results, figures and analysis are included under contributions/herlyn/.

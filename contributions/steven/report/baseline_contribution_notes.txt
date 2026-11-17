@@ -1,0 +1,85 @@
+STEVEN YANG — PROJECT SETUP, BASELINES AND PREVIOUS-SALE FEATURES
+
+PROJECT SETUP
+Set up the team GitHub repository, branch-and-pull-request workflow, README,
+.gitignore (keeps Kaggle data, virtual environments and credentials out of
+the repo) and requirements.txt. Wrote the shared data loaders (src/data.py)
+used by every team member.
+
+VALIDATION DESIGN
+The Kaggle test set contains only 2024 sales, so predicting it means
+predicting the future. Validation therefore uses a time split: train on
+232,916 sales from 1995-2022 and validate on all 33,409 sales from 2023.
+A random split would mix future sales into training and overstate accuracy.
+Every model below uses the same training and validation rows.
+
+BASELINES
+1. Median by outcode + property type: predicts the median price of recent
+   (2020-2022) sales in the same postcode district and property type.
+   MAE: GBP 342,975.
+2. Gradient boosting (scikit-learn HistGradientBoostingRegressor) on the raw
+   property, location and date features, trained on log(price) because
+   prices are heavily skewed (GBP 10,000 to GBP 100,000,000).
+   MAE: GBP 211,174.
+
+PREVIOUS-SALE FEATURES
+76% of the 2024 test properties sold before in the training data, so a
+property's own sale history is strong evidence of its value. Three features
+were added (src/features.py):
+- prev_price: the property's most recent sale from an earlier month.
+- prev_price_adjusted: that price scaled by how much London prices moved
+  since, using a London price index (12-month rolling median of log price).
+- months_since_prev_sale: time since that sale.
+Leakage rules: features use only sales from strictly earlier months, the
+price index is built from training sales only and each month's index value
+uses only earlier months. A check confirms 0 violations in training,
+validation and test rows. Coverage: 53% of training rows, 69% of validation
+rows and 76% of test rows have a previous sale.
+MAE with previous-sale features: GBP 198,446.
+
+REVIEW FIX
+During the cleaning review, Herlyn found two issues in the first version:
+the price index included each sale's own month, and same-month repeat sales
+discarded the property's older sale history (832 rows). Both were fixed.
+MAE moved from GBP 199,151 to GBP 198,446 — a correctness fix rather than a
+score gain.
+
+RESULTS (2023 validation MAE in GBP; lower is better)
+Median by outcode + type: 342,975
+Gradient boosting: 211,174
+Gradient boosting + previous sale: 198,446
+
+SEED CHECK
+Gradient boosting is not fully deterministic across random seeds, so each
+model was refit with seeds 42, 1 and 7:
+Gradient boosting: 209,977 to 211,630 (mean 210,927)
+Gradient boosting + previous sale: 198,446 to 199,987 (mean 199,162)
+Run-to-run variation is about GBP 1,000-2,000, so the previous-sale gain of
+about GBP 12,000 is real, while differences under about GBP 2,000 between
+models should not be treated as improvements.
+
+LIMITS
+2023 was used to make design choices, so it is development evidence rather
+than an untouched final test; no 2024 prices are available. The model fits
+log(price) rather than MAE in pounds directly. Properties without a previous
+sale (about a quarter of the test set) rely on the other features only.
+
+REPORT SUMMARY
+I set up the team's repository and shared data-loading code and designed a
+time-based validation that mirrors the competition: training on sales up to
+2022 and validating on 2023. A median price by postcode district and property
+type gave a reference MAE of GBP 342,975; gradient boosting on log price
+reduced this to GBP 211,174. Because most properties appear more than once in
+the data, I engineered leak-free previous-sale features, adjusting each
+earlier sale price with a London price index built only from past months.
+This reduced MAE to GBP 198,446, an improvement of about 6% that holds across
+random seeds. A teammate's review found two leakage issues in the first
+version, which I fixed.
+
+SLIDE POINTS
+Validation: train 1995-2022, validate on 2023, mirroring the 2024 test set.
+Baselines: median by area and type GBP 343k MAE; gradient boosting GBP 211k.
+Key feature: previous sale price, market-adjusted with a London price index;
+available for 76% of test properties.
+Result: MAE GBP 198k, about 6% better, consistent across random seeds.
+Rigor: features use only earlier months; leakage fixed after peer review.

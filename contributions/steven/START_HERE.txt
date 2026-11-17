@@ -1,0 +1,30 @@
+PROJECT SETUP, BASELINES AND PREVIOUS-SALE FEATURES — STEVEN YANG
+
+This directory documents Steven's contribution. The code itself lives in
+the shared src/ package so the whole team imports it the same way.
+
+SHARED CODE (in src/)
+src/data.py: load_train(), load_test() and time_split() used by everyone.
+src/baseline.py: median and gradient-boosting baselines, plus the
+  previous-sale model. Run: python -m src.baseline
+src/features.py: leak-free previous-sale features and the London price index.
+
+FILES IN THIS DIRECTORY
+baseline_review.py: re-runs all models and saves the tables and figures below.
+notebooks/01_baseline_steven.ipynb: walkthrough of the decisions and results.
+reports/: result tables, figures and report/slide notes.
+
+METHOD
+Training used sales before 2023. Validation used all 2023 sales, because
+the Kaggle test set contains only 2024 sales. A random split would let the
+model see the future and overstate accuracy.
+
+REPRODUCIBILITY
+Commands run from the repository root:
+
+python -m src.baseline
+python -m contributions.steven.baseline_review
+
+Generated results are saved under contributions/steven/reports/.
+The review script takes about 5-10 minutes (seven model fits).
+The notebook follows the team's nbstripout convention.

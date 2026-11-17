@@ -1,0 +1,4 @@
+model,mae_gbp,training_rows,validation_rows
+Median by outcode + type,342975.19,232916,33409
+Gradient boosting,211173.51,232916,33409
+Gradient boosting + previous sale,198445.72,232916,33409

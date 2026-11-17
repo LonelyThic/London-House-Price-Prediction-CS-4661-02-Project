@@ -1,0 +1,21 @@
+{
+  "training_rows": 232916,
+  "validation_rows": 33409,
+  "test_rows": 16547,
+  "training_years": [
+    1995,
+    2022
+  ],
+  "validation_year": 2023,
+  "share_with_previous_sale": {
+    "train_before_2023": 0.5331,
+    "validation_2023": 0.6863,
+    "test_2024": 0.7639
+  },
+  "leak_check_violations": {
+    "train_before_2023": 0,
+    "validation_2023": 0,
+    "test_2024": 0
+  },
+  "median_months_since_previous_sale_validation": 116.0
+}

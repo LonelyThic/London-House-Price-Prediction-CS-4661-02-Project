@@ -1,0 +1,7 @@
+model,seed,mae_gbp
+Gradient boosting,42,211173.51
+Gradient boosting + previous sale,42,198445.72
+Gradient boosting,1,211630.04
+Gradient boosting + previous sale,1,199052.64
+Gradient boosting,7,209976.77
+Gradient boosting + previous sale,7,199987.16

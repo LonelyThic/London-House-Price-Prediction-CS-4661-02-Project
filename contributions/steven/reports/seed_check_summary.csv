@@ -1,0 +1,3 @@
+model,mean,min,max
+Gradient boosting,210926.77,209976.77,211630.04
+Gradient boosting + previous sale,199161.84,198445.72,199987.16

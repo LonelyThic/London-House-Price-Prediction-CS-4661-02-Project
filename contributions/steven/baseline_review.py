@@ -1,3 +1,11 @@
+"""Run from the repository root: python -m contributions.steven.baseline_review
+
+Re-runs the baseline models and the previous-sale model on the team's
+time split (train before 2023, validate on all 2023 sales) and saves
+result tables and figures to contributions/steven/reports/.
+Takes about 5-10 minutes (seven gradient-boosting fits).
+"""
+
 import json
 from pathlib import Path
 
